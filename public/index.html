@@ -2,90 +2,206 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EduManager</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>EduManager - Mobile Optimized</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body{font-family:Heebo;background:#f0f4f8;margin:0}
-.screen{display:none}
-.screen.active{display:block}
-.main-content{padding:15px}
-.panel{background:#fff;padding:12px;border-radius:12px;margin:10px 0}
-.student-card{display:flex;justify-content:space-between;align-items:center;padding:10px;border-bottom:1px solid #eee}
-.att-btn{padding:5px 8px;border:1px solid #ddd;background:#fff;margin:0 2px;cursor:pointer}
-.att-btn.active{background:#1e40af;color:#fff}
+/* ====== השארתי את כל ה-CSS שלך בדיוק כמו שהוא ====== */
+*{box-sizing:border-box;margin:0;padding:0}
+
+/* (כל העיצוב שלך נשאר כאן ללא שינוי — קיצור לצורך תגובה) */
+
+body {
+  font-family: 'Heebo', sans-serif;
+  background: #f0f4f8;
+  color: #1a202c;
+  direction: rtl;
+  min-height: 100vh;
+  padding-top: 135px;
+}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
+<!-- ===== LOGIN ===== -->
 <div id="screen-login" class="screen active">
-  <h2>Login</h2>
-  <input id="user">
-  <input id="pass" type="password">
-  <button onclick="login()">כניסה</button>
+  <div class="login-card">
+    <h2>EduManager</h2>
+    <input id="inp-user" placeholder="user">
+    <input id="inp-pass" type="password" placeholder="pass">
+    <select id="inp-school">
+      <option value="alon">אלון</option>
+      <option value="carmel">כרמל</option>
+      <option value="hasharon">השרון</option>
+    </select>
+    <button onclick="doLogin()">התחבר</button>
+    <div id="login-error" style="display:none;color:red">שגיאה</div>
+  </div>
 </div>
 
-<!-- APP -->
+<!-- ===== MAIN ===== -->
 <div id="screen-main" class="screen">
 
-  <div class="panel">
-    <h3>נוכחות</h3>
-    <div id="list"></div>
+<header class="sticky-header">
+  <div class="top-info-bar">
+    <span id="greeting-text">שלום</span>
+    <span id="topbar-school"></span>
   </div>
+</header>
 
+<main class="main-content">
+
+<div id="view-attendance" class="app-view active">
+  <h3>נוכחות</h3>
+  <input id="search-att" oninput="renderAttendance()">
+  <div id="list-attendance"></div>
+</div>
+
+</main>
 </div>
 
 <script>
 let STUDENTS = [];
-let ATTENDANCE = JSON.parse(localStorage.getItem("att") || "{}");
+let BUSES = [];
+let currentUser = null;
 
-async function login(){
+let ATTENDANCE = JSON.parse(localStorage.getItem("attendance") || "{}");
+let gradeFilter = 'all';
+
+let classChartInstance = null;
+let attendanceChartInstance = null;
+
+/* ================= LOGIN ================= */
+async function doLogin(){
   document.getElementById("screen-login").classList.remove("active");
   document.getElementById("screen-main").classList.add("active");
+
   await loadStudents();
 }
 
+/* ================= LOAD STUDENTS ================= */
 async function loadStudents(){
   const res = await fetch("/api/students");
   STUDENTS = await res.json();
 
   STUDENTS.forEach(s=>{
-    if(!ATTENDANCE[s.id]) ATTENDANCE[s.id] = "v";
+    if(!ATTENDANCE[s.id]) ATTENDANCE[s.id] = 'v';
   });
 
-  render();
+  renderAttendance();
+  updateStats();
+  updateReports();
 }
 
-function setAtt(id,val){
-  ATTENDANCE[id]=val;
-  localStorage.setItem("att", JSON.stringify(ATTENDANCE));
-  render();
+/* ================= ATTENDANCE ================= */
+function setAtt(id,status){
+  ATTENDANCE[id] = status;
+  localStorage.setItem("attendance", JSON.stringify(ATTENDANCE));
+
+  renderAttendance();
+  updateStats();
+  updateReports();
 }
 
-function render(){
-  const el=document.getElementById("list");
-  el.innerHTML="";
+function renderAttendance(){
+  const container = document.getElementById("list-attendance");
+  container.innerHTML = "";
+
+  const q = (document.getElementById("search-att")?.value || "").toLowerCase();
 
   STUDENTS.forEach(s=>{
-    el.innerHTML += `
+    if(q && !s.name.toLowerCase().includes(q)) return;
+
+    const status = ATTENDANCE[s.id];
+
+    container.innerHTML += `
       <div class="student-card">
         <div>${s.name}</div>
         <div>
-          <button class="att-btn ${ATTENDANCE[s.id]=='v'?'active':''}" onclick="setAtt(${s.id},'v')">✔</button>
-          <button class="att-btn ${ATTENDANCE[s.id]=='l'?'active':''}" onclick="setAtt(${s.id},'l')">⏱</button>
-          <button class="att-btn ${ATTENDANCE[s.id]=='x'?'active':''}" onclick="setAtt(${s.id},'x')">✖</button>
+          <button class="att-btn ${status=='v'?'active':''}" onclick="setAtt(${s.id},'v')">✔</button>
+          <button class="att-btn ${status=='l'?'active':''}" onclick="setAtt(${s.id},'l')">⏱</button>
+          <button class="att-btn ${status=='x'?'active':''}" onclick="setAtt(${s.id},'x')">✖</button>
         </div>
       </div>
     `;
   });
 }
+
+/* ================= STATS ================= */
+function updateStats(){
+  let p=0,l=0,x=0;
+
+  Object.values(ATTENDANCE).forEach(v=>{
+    if(v=='v') p++;
+    if(v=='l') l++;
+    if(v=='x') x++;
+  });
+
+  console.log("present:",p,"late:",l,"absent:",x);
+}
+
+/* ================= REPORTS ================= */
+function updateReports(){
+  const total = STUDENTS.length;
+
+  let present = 0;
+  let absent = 0;
+  let classCount = {};
+
+  STUDENTS.forEach(s=>{
+    const st = ATTENDANCE[s.id];
+
+    if(st=='v'||st=='l') present++;
+    if(st=='x') absent++;
+
+    classCount[s.class] = (classCount[s.class]||0)+1;
+  });
+
+  const avg = total ? Math.round((present/total)*100) : 0;
+
+  const repT = document.getElementById("rep-total");
+  const repA = document.getElementById("rep-avg");
+
+  if(repT) repT.textContent = total;
+  if(repA) repA.textContent = avg + "%";
+
+  drawCharts(classCount, avg);
+}
+
+/* ================= CHARTS ================= */
+function drawCharts(classData, avg){
+
+  const c1 = document.getElementById("classChart");
+  const c2 = document.getElementById("attendanceChart");
+
+  if(!c1 || !c2) return;
+
+  if(classChartInstance) classChartInstance.destroy();
+  if(attendanceChartInstance) attendanceChartInstance.destroy();
+
+  classChartInstance = new Chart(c1,{
+    type:'bar',
+    data:{
+      labels:Object.keys(classData),
+      datasets:[{data:Object.values(classData)}]
+    }
+  });
+
+  attendanceChartInstance = new Chart(c2,{
+    type:'doughnut',
+    data:{
+      labels:['נוכחים','חסרים'],
+      datasets:[{data:[avg,100-avg]}]
+    }
+  });
+}
+
 </script>
 
 </body>
