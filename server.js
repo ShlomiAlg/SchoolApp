@@ -2,15 +2,19 @@ const express = require('express');
 const xlsx = require('xlsx');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
+
 app.use(express.json());
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', (req, res) => {
-  res.send('Server is running 🚀');
-});
+// =====================
+// FIX: PORT (Render support)
+// =====================
+const PORT = process.env.PORT || 3000;
+
 // =====================
 // USERS
 // =====================
@@ -21,10 +25,28 @@ const USERS = {
 };
 
 // =====================
-// FILE PATHS (הפרדה מלאה)
+// FILE PATHS
 // =====================
 const STUDENTS_FILE = path.join(__dirname, 'students.xlsx');
 const BUSES_FILE = path.join(__dirname, 'buses.xlsx');
+
+// =====================
+// 🔥 NEW: ATTENDANCE STORAGE (SYNC BETWEEN DEVICES)
+// =====================
+const ATT_FILE = path.join(__dirname, 'attendance.json');
+
+function loadAttendance() {
+  try {
+    if (!fs.existsSync(ATT_FILE)) return {};
+    return JSON.parse(fs.readFileSync(ATT_FILE, 'utf8'));
+  } catch {
+    return {};
+  }
+}
+
+function saveAttendance(data) {
+  fs.writeFileSync(ATT_FILE, JSON.stringify(data, null, 2));
+}
 
 // =====================
 // SAFE EXCEL LOADER
@@ -44,17 +66,23 @@ function loadExcel(filePath) {
 function getStudentsFromExcel() {
   try {
     const data = loadExcel(STUDENTS_FILE);
+    const attendance = loadAttendance();
 
     const colors = ['#3b82f6', '#ec4899', '#10b981', '#f59e0b', '#8b5cf6'];
 
-    return data.map((row, i) => ({
-      id: row['מזהה'] || i + 1,
-      name: `${row['שם פרטי']} ${row['שם משפחה']}`.trim(),
-      class: row['כיתה'] || '',
-      phone: row['מספר טלפון'] || '',
-      tz: row['תעודת זהות'] || '',
-      color: colors[i % colors.length]
-    }));
+    return data.map((row, i) => {
+      const id = row['מזהה'] || i + 1;
+
+      return {
+        id,
+        name: `${row['שם פרטי']} ${row['שם משפחה']}`.trim(),
+        class: row['כיתה'] || '',
+        phone: row['מספר טלפון'] || '',
+        tz: row['תעודת זהות'] || '',
+        color: colors[i % colors.length],
+        status: attendance[id] || 'v'
+      };
+    });
 
   } catch (err) {
     console.error("STUDENTS ERROR:", err);
@@ -125,21 +153,36 @@ app.post('/api/login', (req, res) => {
 });
 
 // =====================
-// API STUDENTS (נוכחות + דוחות)
+// STUDENTS API
 // =====================
 app.get('/api/students', (req, res) => {
   res.json(getStudentsFromExcel());
 });
 
 // =====================
-// API BUSES (הסעות)
+// BUSES API
 // =====================
 app.get('/api/buses', (req, res) => {
   res.json(getBusesFromExcel());
 });
 
 // =====================
-// REPORTS API (חדש)
+// 🔥 NEW: UPDATE ATTENDANCE (SYNC ALL DEVICES)
+// =====================
+app.post('/api/attendance', (req, res) => {
+  const { id, status } = req.body;
+
+  const data = loadAttendance();
+
+  data[id] = status;
+
+  saveAttendance(data);
+
+  res.json({ success: true });
+});
+
+// =====================
+// REPORTS
 // =====================
 app.get('/api/reports', (req, res) => {
   const students = getStudentsFromExcel();
@@ -161,8 +204,6 @@ app.get('/api/reports', (req, res) => {
 // =====================
 // START SERVER
 // =====================
-const PORT = 3000;
-
 app.listen(PORT, () => {
-  console.log("Server running on http://localhost:" + PORT);
+  console.log("Server running 🚀 on port " + PORT);
 });
