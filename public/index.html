@@ -660,16 +660,13 @@ function renderAttendance() {
 }  const container = document.getElementById('list-attendance');
 
 function setAtt(id, status) {
-  ATTENDANCE[id] = status;
+ATTENDANCE[id] = status;
 
-  renderAttendance();
-  updateStats();
-
-  fetch('/api/attendance', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ studentId: id, status })
-  });
+fetch('/api/attendance', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ studentId: id, status })
+});
 }
 
 // =====================
@@ -945,7 +942,9 @@ socket.on('attendance-updated', ({ studentId, status }) => {
   updateStats();
   updateReports();
 });
+
 </script>
+<script src="/socket.io/socket.io.js"></script>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 </body>
 </html>

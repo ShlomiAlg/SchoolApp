@@ -4,6 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const http = require('http');
+const socket = io();
 const { Server } = require('socket.io');
 
 // =====================
@@ -29,6 +30,11 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('Client disconnected');
   });
+});
+socket.on('attendance-updated', (data) => {
+  ATTENDANCE[data.studentId] = data.status;
+  renderAttendance();
+  updateStats();
 });
 
 // =====================
