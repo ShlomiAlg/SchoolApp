@@ -291,7 +291,7 @@ select.form-control{padding-right:44px;appearance:none;-webkit-appearance:none;b
       <div class="input-wrapper">
         <i class="ti ti-building-community"></i>
         <select id="inp-school" class="form-control">
-          <option value="alon">בית ספר אלון</option>
+          <option value="alon">בית ספר עדני הנגב</option>
           <option value="carmel">בית ספר כרמל</option>
           <option value="hasharon">בית ספר השרון</option>
         </select>
@@ -951,8 +951,9 @@ socket.on('attendance-updated', ({ studentId, status }) => {
 </script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  const socket = io();
-
+  const socket = io(window.location.origin, {
+  transports: ['websocket']
+});
   socket.on('attendance-updated', ({ studentId, status }) => {
     ATTENDANCE[studentId] = status;
 
