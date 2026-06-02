@@ -473,6 +473,13 @@ let gradeFilter = 'all';
 // LOGIN
 // =====================
 async function doLogin() {
+  await loadStudentsFromServer();
+await loadBuses();
+await loadAttendance();
+
+renderAttendance();
+updateStats();
+updateReports();
   const u = document.getElementById('inp-user').value.trim();
   const p = document.getElementById('inp-pass').value;
   const s = document.getElementById('inp-school').value;
@@ -499,9 +506,7 @@ async function doLogin() {
     document.getElementById('att-date-label').textContent =
       new Date().toLocaleDateString('he-IL');
 
-    await loadStudentsFromServer();
-    await loadAttendance();
-    await loadBuses();
+    
 
   } catch (e) {
     console.error(e);
@@ -606,6 +611,7 @@ function setGradeFilter(val, btn) {
 }
 
 function renderAttendance() {
+  if (!STUDENTS.length) return;
   const container = document.getElementById('list-attendance');
   container.innerHTML = '';
 
@@ -878,12 +884,12 @@ function drawCharts(classData, avg) {
   });
 }
 async function loadAttendance() {
-  try {
+    try {
     const res = await fetch('/api/attendance');
     ATTENDANCE = await res.json();
 
-    updateStats();
     renderAttendance();
+    updateStats();
     updateReports();
 
   } catch (e) {
