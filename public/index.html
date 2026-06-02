@@ -954,13 +954,13 @@ socket.on('attendance-updated', ({ studentId, status }) => {
   const socket = io(window.location.origin, {
   transports: ['websocket']
 });
-  socket.on('attendance-updated', ({ studentId, status }) => {
-    ATTENDANCE[studentId] = status;
+  socket.on('attendance-updated', (data) => {
+  ATTENDANCE[data.studentId] = data.status;
 
-    renderAttendance();
-    updateStats();
-    updateReports(); // חשוב מאוד
-  });
+  renderAttendance();
+  updateStats();
+  updateReports();
+});
 </script>
 </body>
 </html>
