@@ -191,6 +191,7 @@ app.get('/api/buses', (req, res) => {
 // =====================
 app.post('/api/attendance', (req, res) => {
   const { studentId, status } = req.body;
+  res.json(loadAttendance());
 
   const data = loadAttendance();
   data[String(studentId)] = status;

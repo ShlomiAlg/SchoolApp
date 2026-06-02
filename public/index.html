@@ -673,23 +673,6 @@ function setAtt(id, status) {
   });
 }
 
-// =====================
-// STATS
-// =====================
-function updateStats() {
-  const total = STUDENTS.length;
-  let p = 0, a = 0, l = 0;
-
-  Object.values(ATTENDANCE).forEach(v => {
-    if (v === 'v') p++;
-    if (v === 'l') l++;
-    if (v === 'x') a++;
-  });
-
-  document.getElementById('stat-total-students').textContent = total;
-  document.getElementById('stat-present').textContent = p + l;
-  document.getElementById('stat-absent').textContent = a;
-}
 
 // =====================
 // NAV
@@ -833,23 +816,6 @@ function drawCharts(classData, avg) {
       }]
     }
   });
-// =====================
-// STATS
-// =====================
-function updateStats() {
-  const total = STUDENTS.length;
-  let p = 0, a = 0, l = 0;
-
-  Object.values(ATTENDANCE).forEach(v => {
-    if (v === 'v') p++;
-    if (v === 'l') l++;
-    if (v === 'x') a++;
-  });
-
-  document.getElementById('stat-total-students').textContent = total;
-  document.getElementById('stat-present').textContent = p + l;
-  document.getElementById('stat-absent').textContent = a;
-}
 
 // =====================
 // REPORTS (FIXED)
@@ -939,7 +905,7 @@ function switchView(viewId, btn) {
   }
 }
 socket.on('attendance-updated', ({ studentId, status }) => {
-  ATTENDANCE[data.studentId] = data.status;
+  ATTENDANCE[studentId] = status;
   renderAttendance();
   updateStats();
   updateReports();
@@ -948,11 +914,10 @@ socket.on('attendance-updated', ({ studentId, status }) => {
 </script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  const socket = io(window.location.origin, {
-  transports: ['websocket']
-});
-socket.on('attendance-state', (data) => {
-  ATTENDANCE = data;
+const socket = io();
+
+socket.on('attendance-updated', ({ studentId, status }) => {
+  ATTENDANCE[studentId] = status;
   renderAttendance();
   updateStats();
   updateReports();
