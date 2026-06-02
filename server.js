@@ -13,7 +13,9 @@ const io = new Server(server, {
   cors: { origin: "*" }
 });
 io.on('connection', (socket) => {
-  console.log('Client connected:', socket.id);
+  console.log('Client connected');
+
+  socket.emit('attendance-state', loadAttendance());
 
   socket.on('disconnect', () => {
     console.log('Client disconnected');

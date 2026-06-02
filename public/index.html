@@ -952,8 +952,8 @@ socket.on('attendance-updated', ({ studentId, status }) => {
   const socket = io(window.location.origin, {
   transports: ['websocket']
 });
-  socket.on('attendance-updated', (data) => {
-  ATTENDANCE[data.studentId] = data.status;
+socket.on('attendance-state', (data) => {
+  ATTENDANCE = data;
 
   renderAttendance();
   updateStats();
