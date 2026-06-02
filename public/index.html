@@ -662,13 +662,17 @@ function renderAttendance() {
 }  
 
 function setAtt(id, status) {
-ATTENDANCE[id] = status;
+  ATTENDANCE[id] = status;
 
-fetch('/api/attendance', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ studentId: id, status })
-});
+  fetch('/api/attendance', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ studentId: id, status })
+  }).then(() => {
+    renderAttendance();
+    updateStats();
+    updateReports();
+  });
 }
 
 // =====================
@@ -946,9 +950,16 @@ socket.on('attendance-updated', ({ studentId, status }) => {
 
 </script>
 <script src="/socket.io/socket.io.js"></script>
-
 <script>
-const socket = io();
+  const socket = io();
+
+  socket.on('attendance-updated', ({ studentId, status }) => {
+    ATTENDANCE[studentId] = status;
+
+    renderAttendance();
+    updateStats();
+    updateReports(); // חשוב מאוד
+  });
 </script>
 </body>
 </html>
