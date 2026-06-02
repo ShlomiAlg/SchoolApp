@@ -738,7 +738,7 @@ function updateReports() {
   document.getElementById('rep-avg').textContent = avg + '%';
 
   drawCharts(classCount, avg);
-}  const total = STUDENTS.length;
+}  
 
   let present = 0;
   let absent = 0;
@@ -909,18 +909,18 @@ function switchView(viewId, btn) {
     updateReports();
   }
 }
-socket.on('attendance-updated', ({ studentId, status }) => {
-  ATTENDANCE[studentId] = status;
-  renderAttendance();
-  updateStats();
-  updateReports();
-});
+
 
 </script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
 const socket = io();
-
+socket.on('attendance-state', (data) => {
+  ATTENDANCE = data;
+  renderAttendance();
+  updateStats();
+  updateReports();
+});
 socket.on('attendance-updated', ({ studentId, status }) => {
   ATTENDANCE[studentId] = status;
   renderAttendance();
