@@ -500,6 +500,7 @@ async function doLogin() {
       new Date().toLocaleDateString('he-IL');
 
     await loadStudentsFromServer();
+    await loadAttendance();
     await loadBuses();
 
   } catch (e) {
@@ -516,9 +517,7 @@ async function loadStudentsFromServer() {
     const res = await fetch('/api/students');
     STUDENTS = await res.json();
 
-    STUDENTS.forEach(st => {
-      if (!ATTENDANCE[st.id]) ATTENDANCE[st.id] = 'v';
-    });
+
 
     updateStats();
     renderAttendance();
@@ -660,10 +659,29 @@ function renderAttendance() {
     });
 }  const container = document.getElementById('list-attendance');
 
-function setAtt(id, status) {
+async function setAtt(id, status) {
+
   ATTENDANCE[id] = status;
+
   renderAttendance();
   updateStats();
+
+  try {
+
+    await fetch('/api/attendance', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        studentId: id,
+        status: status
+      })
+    });
+
+  } catch (e) {
+    console.error('ATTENDANCE SAVE ERROR', e);
+  }
 }
 
 // =====================
@@ -904,6 +922,18 @@ function drawCharts(classData, avg) {
     }
   });
 }
+async function loadAttendance() {
+  try {
+    const res = await fetch('/api/attendance');
+    ATTENDANCE = await res.json();
+
+    updateStats();
+    renderAttendance();
+
+  } catch (e) {
+    console.error('ATTENDANCE LOAD ERROR', e);
+  }
+}
 // =====================
 // NAV FIX (single function only)
 // =====================
@@ -918,7 +948,7 @@ function switchView(viewId, btn) {
     updateReports();
   }
 }
-
+setInterval(loadAttendance, 5000);
 </script>
 </body>
 </html>
