@@ -37,9 +37,8 @@ const PORT = process.env.PORT || 3000;
 // USERS
 // =====================
 const USERS = {
-  alon: { username: 'admin', pass: 'admin123', name: 'מנהל ראשי', schoolName: 'בית ספר אלון' },
-  carmel: { username: 'teacher1', pass: 'pass1', name: 'שרה לוי', schoolName: 'בית ספר כרמל' },
-  hasharon: { username: 'manager', pass: 'school2024', name: 'דוד כהן', schoolName: 'בית ספר השרון' }
+  alon: { username: 'admin', pass: 'admin123', name: 'מנהל ראשי', schoolName: 'בית ספר עדני הנגב' },
+
 };
 
 // =====================
