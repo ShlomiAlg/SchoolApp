@@ -138,16 +138,19 @@ function getBusesFromExcel() {
 // =====================
 // LOGIN
 // =====================
-app.post('/api/attendance', (req, res) => {
-  const { studentId, status } = req.body;
+app.post('/api/login', (req, res) => {
+  const { username, password, school } = req.body;
+  const user = USERS[school];
 
-  const data = loadAttendance();
+  if (user && user.username === username && user.pass === password) {
+    return res.json({
+      success: true,
+      name: user.name,
+      schoolName: user.schoolName
+    });
+  }
 
-  data[studentId] = status;
-
-  saveAttendance(data);
-
-  res.json({ success: true });
+  return res.status(401).json({ success: false });
 });
 
 // =====================
@@ -168,11 +171,11 @@ app.get('/api/buses', (req, res) => {
 // 🔥 NEW: UPDATE ATTENDANCE (SYNC ALL DEVICES)
 // =====================
 app.post('/api/attendance', (req, res) => {
-  const { id, status } = req.body;
+  const { studentId, status } = req.body;
 
   const data = loadAttendance();
 
-  data[id] = status;
+  data[studentId] = status;
 
   saveAttendance(data);
 
