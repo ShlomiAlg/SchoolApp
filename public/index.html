@@ -939,8 +939,7 @@ function switchView(viewId, btn) {
   }
 }
 socket.on('attendance-updated', ({ studentId, status }) => {
-  ATTENDANCE[studentId] = status;
-
+  ATTENDANCE[data.studentId] = data.status;
   renderAttendance();
   updateStats();
   updateReports();
@@ -954,7 +953,6 @@ socket.on('attendance-updated', ({ studentId, status }) => {
 });
 socket.on('attendance-state', (data) => {
   ATTENDANCE = data;
-
   renderAttendance();
   updateStats();
   updateReports();

@@ -13,12 +13,13 @@ const io = new Server(server, {
   cors: { origin: "*" }
 });
 io.on('connection', (socket) => {
-  console.log('Client connected');
+  console.log('Client connected:', socket.id);
 
+  // שולח מצב התחלתי לכל מכשיר חדש
   socket.emit('attendance-state', loadAttendance());
 
   socket.on('disconnect', () => {
-    console.log('Client disconnected');
+    console.log('Client disconnected:', socket.id);
   });
 });
 
