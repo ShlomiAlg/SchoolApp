@@ -19,11 +19,7 @@ io.on('connection', (socket) => {
     console.log('Client disconnected');
   });
 });
-socket.on('attendance-updated', (data) => {
-  ATTENDANCE[data.studentId] = data.status;
-  renderAttendance();
-  updateStats();
-});
+
 
 // =====================
 // MIDDLEWARE
