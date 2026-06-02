@@ -659,29 +659,17 @@ function renderAttendance() {
     });
 }  const container = document.getElementById('list-attendance');
 
-async function setAtt(id, status) {
-
+function setAtt(id, status) {
   ATTENDANCE[id] = status;
 
   renderAttendance();
   updateStats();
 
-  try {
-
-    await fetch('/api/attendance', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        studentId: id,
-        status: status
-      })
-    });
-
-  } catch (e) {
-    console.error('ATTENDANCE SAVE ERROR', e);
-  }
+  fetch('/api/attendance', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ studentId: id, status })
+  });
 }
 
 // =====================
@@ -949,6 +937,15 @@ function switchView(viewId, btn) {
   }
 }
 setInterval(loadAttendance, 5000);
+const socket = io();
+socket.on('attendance-updated', ({ studentId, status }) => {
+  ATTENDANCE[studentId] = status;
+
+  renderAttendance();
+  updateStats();
+  updateReports();
+});
 </script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 </body>
 </html>

@@ -9,6 +9,7 @@
   "dependencies": {
     "cors": "^2.8.6",
     "express": "^4.22.2",
+    "socket.io": "^4.8.3",
     "xlsx": "^0.18.5"
   }
 }

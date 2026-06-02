@@ -3,9 +3,19 @@ const xlsx = require('xlsx');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const { Server } = require('socket.io');
+const io = new Server(server, {
+  cors: { origin: "*" }
+});
+io.on('connection', (socket) => {
+  console.log('Client connected');
 
-const app = express();
-
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
+});
+const http = require('http');
+const server = http.createServer(app);
 app.use(express.json());
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -174,10 +184,14 @@ app.post('/api/attendance', (req, res) => {
   const { studentId, status } = req.body;
 
   const data = loadAttendance();
-
-  data[studentId] = status;
-
+  data[String(studentId)] = status;
   saveAttendance(data);
+
+  // 🔥 שידור לכל המשתמשים בזמן אמת
+  io.emit('attendance-updated', {
+    studentId,
+    status
+  });
 
   res.json({ success: true });
 });
@@ -205,6 +219,6 @@ app.get('/api/reports', (req, res) => {
 // =====================
 // START SERVER
 // =====================
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log("Server running 🚀 on port " + PORT);
 });
