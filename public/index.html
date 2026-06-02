@@ -469,6 +469,8 @@ let currentUser = null;
 let BUSES = [];
 let gradeFilter = 'all';
 
+
+
 // =====================
 // LOGIN
 // =====================
@@ -657,7 +659,7 @@ function renderAttendance() {
 
       container.appendChild(card);
     });
-}  const container = document.getElementById('list-attendance');
+}  
 
 function setAtt(id, status) {
 ATTENDANCE[id] = status;
@@ -914,6 +916,7 @@ async function loadAttendance() {
 
     updateStats();
     renderAttendance();
+    updateReports();
 
   } catch (e) {
     console.error('ATTENDANCE LOAD ERROR', e);
@@ -933,8 +936,6 @@ function switchView(viewId, btn) {
     updateReports();
   }
 }
-setInterval(loadAttendance, 5000);
-const socket = io();
 socket.on('attendance-updated', ({ studentId, status }) => {
   ATTENDANCE[studentId] = status;
 
@@ -945,6 +946,9 @@ socket.on('attendance-updated', ({ studentId, status }) => {
 
 </script>
 <script src="/socket.io/socket.io.js"></script>
-<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+<script>
+const socket = io();
+</script>
 </body>
 </html>

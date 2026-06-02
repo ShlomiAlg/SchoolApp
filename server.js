@@ -4,26 +4,14 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const http = require('http');
-const socket = io();
 const { Server } = require('socket.io');
 
-// =====================
-// APP FIRST
-// =====================
 const app = express();
-
-// =====================
-// HTTP SERVER SECOND
-// =====================
 const server = http.createServer(app);
 
-// =====================
-// SOCKET.IO THIRD
-// =====================
 const io = new Server(server, {
   cors: { origin: "*" }
 });
-
 io.on('connection', (socket) => {
   console.log('Client connected');
 
