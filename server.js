@@ -138,19 +138,16 @@ function getBusesFromExcel() {
 // =====================
 // LOGIN
 // =====================
-app.post('/api/login', (req, res) => {
-  const { username, password, school } = req.body;
-  const user = USERS[school];
+app.post('/api/attendance', (req, res) => {
+  const { studentId, status } = req.body;
 
-  if (user && user.username === username && user.pass === password) {
-    return res.json({
-      success: true,
-      name: user.name,
-      schoolName: user.schoolName
-    });
-  }
+  const data = loadAttendance();
 
-  return res.status(401).json({ success: false });
+  data[studentId] = status;
+
+  saveAttendance(data);
+
+  res.json({ success: true });
 });
 
 // =====================
