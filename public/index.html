@@ -473,13 +473,6 @@ let gradeFilter = 'all';
 // LOGIN
 // =====================
 async function doLogin() {
-  await loadStudentsFromServer();
-await loadBuses();
-await loadAttendance();
-
-renderAttendance();
-updateStats();
-updateReports();
   const u = document.getElementById('inp-user').value.trim();
   const p = document.getElementById('inp-pass').value;
   const s = document.getElementById('inp-school').value;
@@ -506,14 +499,20 @@ updateReports();
     document.getElementById('att-date-label').textContent =
       new Date().toLocaleDateString('he-IL');
 
-    
+    // 🔥 טוענים נתונים רק אחרי התחברות
+    await loadStudentsFromServer();
+    await loadBuses();
+    await loadAttendance();
+
+    renderAttendance();
+    updateStats();
+    updateReports();
 
   } catch (e) {
     console.error(e);
     err.style.display = 'block';
   }
 }
-
 // =====================
 // STUDENTS
 // =====================
