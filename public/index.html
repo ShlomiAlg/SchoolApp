@@ -627,7 +627,7 @@ function renderAttendance() {
         name.includes(query) || cls.includes(query);
 
       const matchesGrade =
-        gradeFilter === 'all' || (st.class || '').includes(gradeFilter);
+        gradeFilter === 'all' || st.class.startsWith(gradeFilter);
 
       return matchesSearch && matchesGrade;
     })
