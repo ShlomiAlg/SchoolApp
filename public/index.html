@@ -633,7 +633,7 @@ function renderAttendance() {
     })
     .forEach(st => {
 
-      if (!ATTENDANCE[st.id]) ATTENDANCE[st.id] = 'v';
+      if (!ATTENDANCE[st.id]) ATTENDANCE[st.id] = 'x';
 
       const card = document.createElement('div');
       card.className = 'student-card';
