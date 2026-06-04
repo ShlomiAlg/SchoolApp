@@ -285,12 +285,12 @@ select.form-control{padding-right:44px;appearance:none;-webkit-appearance:none;b
 }
 
 .grade-name{
-  font-size:12px;
-  color:var(--text2);
+  font-size:20px;
+  color:var(--primary);
 }
 
 .grade-count{
-  font-size:20px;
+  font-size:18px;
   font-weight:700;
   color:var(--primary);
   margin-top:4px;
@@ -612,7 +612,7 @@ function updateGradeSummary() {
 
     if (el) {
       el.textContent =
-        `${g.present} / ${g.total}`;
+        `${g.total} / ${g.present}`;
     }
   });
 }
