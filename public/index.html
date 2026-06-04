@@ -23,7 +23,32 @@
   transition: all 0.15s;
   color: var(--text2);
 }
+.grade-summary{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+    margin-top:10px;
+}
 
+.grade-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:15px;
+    text-align:center;
+}
+
+.grade-name{
+    font-size:14px;
+    color:var(--muted);
+    margin-bottom:8px;
+}
+
+.grade-count{
+    font-size:22px;
+    font-weight:700;
+    color:var(--accent);
+}
 /* מצב פעיל ברור */
 .att-btn.active {
   transform: scale(1.05);
@@ -356,12 +381,30 @@ select.form-control{padding-right:44px;appearance:none;-webkit-appearance:none;b
       </div>
       
       <div class="panel">
-        <div class="panel-header"><div class="panel-title"><i class="ti ti-activity" style="color:var(--accent)"></i>פילוח יומי</div></div>
-        <div style="width:100%;background:var(--border);height:12px;border-radius:6px;overflow:hidden;display:flex;margin-top:6px">
-          <div id="bar-p" style="background:var(--accent);width:85%"></div>
-          <div id="bar-l" style="background:var(--warn);width:5%"></div>
-          <div id="bar-a" style="background:var(--danger);width:10%"></div>
-        </div>
+  <div class="panel-header">
+    <div class="panel-title">
+      <i class="ti ti-school" style="color:var(--accent)"></i>
+      נוכחות לפי שכבה
+    </div>
+  </div>
+
+  <div class="grade-summary">
+    <div class="grade-card">
+      <div class="grade-name">שכבה י'</div>
+      <div class="grade-count">120 / 135</div>
+    </div>
+
+    <div class="grade-card">
+      <div class="grade-name">שכבה יא'</div>
+      <div class="grade-count">98 / 110</div>
+    </div>
+
+    <div class="grade-card">
+      <div class="grade-name">שכבה יב'</div>
+      <div class="grade-count">87 / 95</div>
+    </div>
+  </div>
+</div>
       </div>
     </div>
 
