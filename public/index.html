@@ -23,32 +23,7 @@
   transition: all 0.15s;
   color: var(--text2);
 }
-.grade-summary{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:12px;
-    margin-top:10px;
-}
 
-.grade-card{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:12px;
-    padding:15px;
-    text-align:center;
-}
-
-.grade-name{
-    font-size:14px;
-    color:var(--muted);
-    margin-bottom:8px;
-}
-
-.grade-count{
-    font-size:22px;
-    font-weight:700;
-    color:var(--accent);
-}
 /* מצב פעיל ברור */
 .att-btn.active {
   transform: scale(1.05);
@@ -295,6 +270,32 @@ select.form-control{padding-right:44px;appearance:none;-webkit-appearance:none;b
   color:#64748b;
 }
 
+.grade-summary{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+
+.grade-card{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px;
+  text-align:center;
+}
+
+.grade-name{
+  font-size:12px;
+  color:var(--text2);
+}
+
+.grade-count{
+  font-size:20px;
+  font-weight:700;
+  color:var(--primary);
+  margin-top:4px;
+}
+
 .student-chip{
   background:#f8fafc;
   padding:6px;
@@ -380,32 +381,46 @@ select.form-control{padding-right:44px;appearance:none;-webkit-appearance:none;b
         <div class="stat-card"><div class="stat-info"><h3>הסעה</h3><div class="num" style="font-size:12px;margin-top:4px" id="stat-bus">בפיזור</div></div><div class="stat-icon warn"><i class="ti ti-bus"></i></div></div>
       </div>
       
-      <div class="panel">
+<div class="panel">
   <div class="panel-header">
     <div class="panel-title">
-      <i class="ti ti-school" style="color:var(--accent)"></i>
+      <i class="ti ti-school"></i>
       נוכחות לפי שכבה
     </div>
   </div>
 
   <div class="grade-summary">
     <div class="grade-card">
-      <div class="grade-name">שכבה י'</div>
-      <div class="grade-count">120 / 135</div>
+      <div class="grade-name">ז'-ח'</div>
+      <div class="grade-count" id="grade-zh">0 / 0</div>
     </div>
 
     <div class="grade-card">
-      <div class="grade-name">שכבה יא'</div>
-      <div class="grade-count">98 / 110</div>
+      <div class="grade-name">ט'</div>
+      <div class="grade-count" id="grade-t">0 / 0</div>
     </div>
 
     <div class="grade-card">
-      <div class="grade-name">שכבה יב'</div>
-      <div class="grade-count">87 / 95</div>
+      <div class="grade-name">י'</div>
+      <div class="grade-count" id="grade-y">0 / 0</div>
+    </div>
+
+    <div class="grade-card">
+      <div class="grade-name">יא'</div>
+      <div class="grade-count" id="grade-ya">0 / 0</div>
+    </div>
+
+    <div class="grade-card">
+      <div class="grade-name">יב'</div>
+      <div class="grade-count" id="grade-yb">0 / 0</div>
+    </div>
+
+    <div class="grade-card">
+      <div class="grade-name">בוגרת</div>
+      <div class="grade-count" id="grade-b">0 / 0</div>
     </div>
   </div>
 </div>
-      </div>
     </div>
 
     <div id="view-attendance" class="app-view">
@@ -553,6 +568,7 @@ async function doLogin() {
 
     renderAttendance();
     updateStats();
+    updateGradeSummary();
     updateReports();
 
   } catch (e) {
@@ -560,6 +576,48 @@ async function doLogin() {
     err.style.display = 'block';
   }
 }
+
+function updateGradeSummary() {
+
+  const grades = {
+    'ז - ח': { total:0, present:0, id:'grade-zh' },
+    'ט':     { total:0, present:0, id:'grade-t'  },
+    'י':     { total:0, present:0, id:'grade-y'  },
+    'יא':    { total:0, present:0, id:'grade-ya' },
+    'יב':    { total:0, present:0, id:'grade-yb' },
+    'בוגרת': { total:0, present:0, id:'grade-b'  }
+  };
+
+  STUDENTS.forEach(st => {
+
+    const cls = (st.class || '').trim();
+
+    Object.keys(grades).forEach(g => {
+
+      if (cls.startsWith(g)) {
+
+        grades[g].total++;
+
+        const status = ATTENDANCE[st.id];
+
+        if (status === 'v' || status === 'l') {
+          grades[g].present++;
+        }
+      }
+    });
+  });
+
+  Object.values(grades).forEach(g => {
+    const el = document.getElementById(g.id);
+
+    if (el) {
+      el.textContent =
+        `${g.present} / ${g.total}`;
+    }
+  });
+}
+
+
 // =====================
 // STUDENTS
 // =====================
@@ -571,6 +629,7 @@ async function loadStudentsFromServer() {
 
 
     updateStats();
+    updateGradeSummary();
     renderAttendance();
     initCalendar();
     updateReport();
@@ -721,6 +780,7 @@ function setAtt(id, status) {
   }).then(() => {
     renderAttendance();
     updateStats();
+    updateGradeSummary();
     updateReports();
   });
 }
@@ -936,6 +996,7 @@ async function loadAttendance() {
 
     renderAttendance();
     updateStats();
+    updateGradeSummary();
     updateReports();
 
   } catch (e) {
@@ -966,12 +1027,14 @@ socket.on('attendance-state', (data) => {
   ATTENDANCE = data;
   renderAttendance();
   updateStats();
+  updateGradeSummary();
   updateReports();
 });
 socket.on('attendance-updated', ({ studentId, status }) => {
   ATTENDANCE[studentId] = status;
   renderAttendance();
   updateStats();
+  updateGradeSummary();
   updateReports();
 });
 </script>
